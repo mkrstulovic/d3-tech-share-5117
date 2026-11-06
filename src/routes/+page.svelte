@@ -1,7 +1,123 @@
-<script>
-  import LinePlot from './LinePlot.svelte';
-</script>
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+  import * as d3 from "d3";
+  import Scatter from "#lib/Scatter.svelte";
+  import Line from "#lib/Line.svelte";
+  import { onMount } from "svelte";
+  import type { TMovie } from "../types";
 
-<LinePlot width={400} height={200} data={[1, 2, 3, 4, 5]} />
+
+  let movies: TMovie[] = $state([]);
+
+  let yearRange: [Date, Date] | undefined = $state();
+
+  function getYearCountArray(movies: TMovie[]) {
+    let yearCount: { [year: number]: number } = {};
+    const allYears = [...new Set(movies.map((d) => d.year.getFullYear()))];
+    for (let year of allYears) {
+      yearCount[year] = movies.filter(
+        (d) => d.year.getFullYear() == year,
+      ).length;
+    }
+
+    // Convert the map to an array of { year, count } objects
+    const yearCountArray = Object.entries(yearCount).map(([year, count]) => ({
+      x: new Date(year),
+      y: count as number,
+    }));
+
+    // Sort the array by year in ascending order
+    yearCountArray.sort((a, b) => (a.x < b.x ? -1 : 1));
+    return yearCountArray;
+  }
+
+  let yearCountArray = $derived(getYearCountArray(movies));
+
+  type TAxisSelection = {
+    x: keyof TMovie;
+    y: keyof TMovie;
+    size: keyof TMovie;
+  };
+
+  let axisSelection: TAxisSelection = $state({
+    x: "year",
+    y: "average_rating",
+    size: "num_votes",
+  });
+
+  // Function to load the CSV
+  async function loadCsv() {
+    try {
+      const csvUrl = "./summer_movies.csv";
+      movies = await d3.csv(csvUrl, (row) => {
+        // all values are strings, so use row conversion function to format them
+        return {
+          ...row,
+          num_votes: Number(row.num_votes),
+          runtime_minutes: Number(row.runtime_minutes),
+          genres: row.genres.split(","),
+          year: new Date(row.year),
+          average_rating: Number(row.average_rating),
+        } as TMovie;
+      });
+
+      console.log("Loaded CSV Data:", movies);
+    } catch (error) {
+      console.error("Error loading CSV:", error);
+    }
+  }
+  // Call the loader when the component mounts
+  onMount(loadCsv);
+
+  let attrOptions = $derived(movies[0] ? Object.keys(movies[0]) : []);
+</script>
+
+<div class="container">
+  <h1>Summer Movies</h1>
+
+  <p>Here are {movies.length == 0 ? "..." : movies.length + " "} movies</p>
+  {#if movies.length > 0}
+    <div class="selectors">
+      <!-- selectors for three axis -->
+      X Axis:
+      <select bind:value={axisSelection.x}>
+        {#each attrOptions as key}
+          <option value={key}>{key}</option>
+        {/each}
+      </select>
+
+      Y Axis:
+      <select bind:value={axisSelection.y}>
+        {#each attrOptions.filter((d) => d != "genres") as key}
+          <option value={key}>{key}</option>
+        {/each}
+      </select>
+
+      Size:
+      <select bind:value={axisSelection.size}>
+        {#each attrOptions.filter((d) => d != "genres") as key}
+          <option value={key}>{key}</option>
+        {/each}
+      </select>
+    </div>
+
+    <Scatter
+      movies={yearRange
+        ? movies.filter((d) => d.year <= yearRange![1] && d.year >= yearRange![0])
+        : movies}
+      x={axisSelection.x}
+      y={axisSelection.y}
+      size={axisSelection.size}
+    />
+    <br />
+
+    <Line data={yearCountArray} bind:yearRange />
+  {/if}
+</div>
+
+<style>
+  .container {
+    width: 60vw;
+    margin: 10px auto;
+    padding: 10px;
+  }
+</style>
