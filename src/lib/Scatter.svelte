@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TMovie } from "../types";
+  import type { Quota, PrintHistory } from "../types";
   import * as d3 from "d3";
 
   type TProps = {
