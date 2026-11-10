@@ -19,7 +19,8 @@
     prints = await d3.csv('./prints.csv', (row) => ({
       startTime: new Date(row.startTime),
       actualPrintTime: Number(row.actualPrintTime),
-      calculatedPrintTime: Number(row.calculatedPrintTime)
+      calculatedPrintTime: Number(row.calculatedPrintTime),
+      status: row.status as PrintHistory['status']
     }));
 
     weeklyCounts = await d3.csv('./weekly_prints.csv', (row) => ({
@@ -35,6 +36,11 @@
 
 <div class="container">
   <h1>D3 fundamentals</h1>
+  <p>
+    This demo shows 3D printing jobs from University of Minnesota students and faculty using Prusa
+    and Bambu printers. The scatter plot compares estimated and actual duration in hours, and the
+    line graph shows jobs started each week.
+  </p>
 
   {#if prints.length > 0 && weeklyCounts.length > 0}
     <h2>Scatter plot</h2>
