@@ -3,18 +3,26 @@
   import { onMount } from 'svelte';
   import Scatter from '#lib/Scatter.svelte';
   import Line from '#lib/Line.svelte';
+  import LineBrush from '#lib/LineBrush.svelte';
   import type { PrintHistory, WeeklyPrintCount } from '../types.d';
 
+  // We set key state values here so we can render dynamically and keep track.
   let prints: PrintHistory[] = $state([]);
   let weeklyCounts: WeeklyPrintCount[] = $state([]);
   let dateRange: [Date, Date] | undefined = $state();
 
+  let useBrush = false;
+
+  // This is an important step for brushing.
+  // We define a dervied state dependent on a date range (our filter).
+  // If we have a defined date range, we filter prints and since the scatter relies on this, it is forced to rerender the updates.
   const visiblePrints = $derived.by(() => {
     if (!dateRange) return prints;
     const [start, end] = dateRange;
     return prints.filter((print) => print.startTime >= start && print.startTime < end);
   });
 
+  // We load the CSV data from our file and define data types for each of the columns. We load this when the page mounts.
   async function loadCsv() {
     prints = await d3.csv('./prints.csv', (row) => ({
       startTime: new Date(row.startTime),
@@ -42,6 +50,7 @@
     line graph shows jobs started each week.
   </p>
 
+  <!-- We only display charts once the data has loaded in. The charts are defined as assets and imported as components that we can use and define properties for. -->
   {#if prints.length > 0 && weeklyCounts.length > 0}
     <h2>Scatter plot</h2>
     <p>Showing {visiblePrints.length} of {prints.length} print jobs.</p>
@@ -49,7 +58,11 @@
 
     <h2>Line graph</h2>
     <p>Drag across the line graph to filter the scatter plot.</p>
-    <Line data={weeklyCounts} bind:dateRange />
+    {#if useBrush}
+      <LineBrush data={weeklyCounts} bind:dateRange />
+    {:else}
+      <Line data={weeklyCounts} />
+    {/if}
   {/if}
 </div>
 

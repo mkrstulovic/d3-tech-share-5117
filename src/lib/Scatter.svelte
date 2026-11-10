@@ -9,9 +9,11 @@
   const { prints, visiblePrints }: TProps = $props();
   let svgElement: SVGSVGElement | undefined = $state();
 
+  // Define the width and height of the scatter plot, as well as margins for axes and labels.
   const width = 600;
   const height = 350;
   const margin = { top: 45, right: 20, bottom: 50, left: 60 };
+  // Define colors and labels for the legend. We should be able to place this manually.
   const colors = { printed: 'steelblue', aborted: 'darkorange' };
   const legendItems = [
     { label: 'Completed', color: colors.printed },
@@ -22,18 +24,24 @@
     if (!svgElement) return;
     const svg = d3.select(svgElement);
 
+    // Linear scale to estimated print time, a number. 
     const xScale = d3
       .scaleLinear()
       .domain([0, d3.max(prints, (print) => print.calculatedPrintTime) || 1])
       .range([margin.left, width - margin.right]);
+    // Linear scale for actual print time, a number.
     const yScale = d3
       .scaleLinear()
       .domain([0, d3.max(prints, (print) => print.actualPrintTime) || 1])
       .range([height - margin.bottom, margin.top]);
 
+    // This actually adds the axes to the scatter. It also defines what ticks to show. 
     svg.select<SVGGElement>('.x-axis').call(d3.axisBottom(xScale).ticks(6));
     svg.select<SVGGElement>('.y-axis').call(d3.axisLeft(yScale).ticks(6));
 
+    // We select the points group and all circle marks in the scatter plot. We load in the data, and specify how to get x and y coords.
+    // We also specify styling!
+    // The join here allows us to update the scatter plot when the visiblePrints changes, which is important for filtering when we implement the brush!
     svg
       .select('.points')
       .selectAll('circle')
@@ -45,6 +53,7 @@
       .attr('fill', (print) => colors[print.status])
       .attr('opacity', 0.5);
 
+    // The legend uses index within an array to get colors and text labels so we can plot the items based on position together.
     const legend = svg.select('.legend');
     legend
       .selectAll('circle')
@@ -54,7 +63,7 @@
       .attr('r', 4)
       .attr('fill', (item) => item.color)
       .attr('opacity', 0.5);
-
+      
     legend
       .selectAll('text')
       .data(legendItems)
@@ -66,6 +75,7 @@
   });
 </script>
 
+<!-- We define an SVG container with preset groups for the scatter plot, making sure to bind it to svgElement so d3 can manipulate it -->
 <svg bind:this={svgElement} {width} {height} aria-label="Estimated versus actual print duration">
   <g class="points" />
   <g class="x-axis" transform="translate(0, {height - margin.bottom})" />
