@@ -59,7 +59,7 @@
 </script>
 
 <!-- This is the same as the normal line chart, but now we added a group for the brush! -->
-<svg bind:this={svgElement} {width} {height} aria-label="Print jobs started each week">
+<svg bind:this={svgElement} {width} {height}>
   <path class="series" fill="none" stroke="#E46DAC" stroke-width="2" />
   <g class="x-axis" transform="translate(0, {height - margin.bottom})" />
   <g class="y-axis" transform="translate({margin.left}, 0)" />
