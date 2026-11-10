@@ -3,64 +3,76 @@
   import Scatter from "#lib/Scatter.svelte";
   import Line from "#lib/Line.svelte";
   import { onMount } from "svelte";
-  import type { TMovie } from "../types";
+  import type { PrintHistory } from "../types.d";
 
 
-  let movies: TMovie[] = $state([]);
+  let prints: PrintHistory[] = $state([]);
 
-  let yearRange: [Date, Date] | undefined = $state();
+  let weekRange: [Date, Date] | undefined = $state();
 
-  function getYearCountArray(movies: TMovie[]) {
-    let yearCount: { [year: number]: number } = {};
-    const allYears = [...new Set(movies.map((d) => d.year.getFullYear()))];
-    for (let year of allYears) {
-      yearCount[year] = movies.filter(
-        (d) => d.year.getFullYear() == year,
+  function getWeek(date: Date) {
+    const yearStart = new Date(date.getFullYear(), 0 ,1)
+    const days = (date.getTime() - yearStart.getTime()) / 86400000
+
+    const week_number = Math.ceil((days + yearStart.getDay() + 1) / 7)
+    // console.log("Date " + date.toString() + " --> " + week_number)
+    // console.log(yearStart.getTime())
+
+    return week_number
+  }
+
+  function getWeeklyCountArray(prints: PrintHistory[]) {
+    let weekCount: { [week: number]: number } = {};
+    const allWeeks = [...new Set(prints.map((d) => getWeek(d.startTime)))];
+    for (let week of allWeeks) {
+      weekCount[week] = prints.filter(
+        (d) => getWeek(d.startTime) == week,
       ).length;
     }
 
-    // Convert the map to an array of { year, count } objects
-    const yearCountArray = Object.entries(yearCount).map(([year, count]) => ({
-      x: new Date(year),
+    // Convert the map to an array of { week, count } objects
+    const weekCountArray = Object.entries(weekCount).map(([week, count]) => ({
+      x: new Date(1767247200000 + (week * 7 * 86400000)),
       y: count as number,
     }));
 
-    // Sort the array by year in ascending order
-    yearCountArray.sort((a, b) => (a.x < b.x ? -1 : 1));
-    return yearCountArray;
+    // Sort the array by week in ascending order
+    weekCountArray.sort((a, b) => (a.x < b.x ? -1 : 1));
+    console.log(weekCountArray)
+    return weekCountArray;
   }
 
-  let yearCountArray = $derived(getYearCountArray(movies));
+  let weekCountArray = $derived(getWeeklyCountArray(prints));
 
   type TAxisSelection = {
-    x: keyof TMovie;
-    y: keyof TMovie;
-    size: keyof TMovie;
+    x: keyof PrintHistory;
+    y: keyof PrintHistory;
+    size: keyof PrintHistory;
   };
 
   let axisSelection: TAxisSelection = $state({
-    x: "year",
-    y: "average_rating",
-    size: "num_votes",
+    x: "startTime",
+    y: "actualPrintTime",
+    size: "costs",
   });
 
   // Function to load the CSV
   async function loadCsv() {
     try {
-      const csvUrl = "./summer_movies.csv";
-      movies = await d3.csv(csvUrl, (row) => {
+      const csvUrl = "./Prusa.csv";
+      prints = await d3.csv(csvUrl, (row) => {
         // all values are strings, so use row conversion function to format them
         return {
           ...row,
-          num_votes: Number(row.num_votes),
-          runtime_minutes: Number(row.runtime_minutes),
-          genres: row.genres.split(","),
-          year: new Date(row.year),
-          average_rating: Number(row.average_rating),
-        } as TMovie;
+          startTime: new Date(row.startTime),
+          actualPrintTime: Number(row.actualPrintTime),
+          calculatedPrintTime: Number(row.calculatedPrintTime),
+          filamentUsed: Number(row.filamentUsed),
+          costs: Number(row.costs),
+        } as PrintHistory;
       });
 
-      console.log("Loaded CSV Data:", movies);
+      console.log("Loaded CSV Data:", prints);
     } catch (error) {
       console.error("Error loading CSV:", error);
     }
@@ -68,14 +80,14 @@
   // Call the loader when the component mounts
   onMount(loadCsv);
 
-  let attrOptions = $derived(movies[0] ? Object.keys(movies[0]) : []);
+  let attrOptions = $derived(prints[0] ? Object.keys(prints[0]) : []);
 </script>
 
 <div class="container">
   <h1>Summer Movies</h1>
 
-  <p>Here are {movies.length == 0 ? "..." : movies.length + " "} movies</p>
-  {#if movies.length > 0}
+  <p>Here are {prints.length == 0 ? "..." : prints.length + " "} prints</p>
+  {#if prints.length > 0}
     <div class="selectors">
       <!-- selectors for three axis -->
       X Axis:
@@ -101,16 +113,16 @@
     </div>
 
     <Scatter
-      movies={yearRange
-        ? movies.filter((d) => d.year <= yearRange![1] && d.year >= yearRange![0])
-        : movies}
+      prints={weekRange
+        ? prints.filter((d) => d.startTime <= weekRange![1] && d.startTime >= weekRange![0])
+        : prints}
       x={axisSelection.x}
       y={axisSelection.y}
       size={axisSelection.size}
     />
     <br />
 
-    <Line data={yearCountArray} bind:yearRange />
+    <Line data={weekCountArray} bind:weekRange />
   {/if}
 </div>
 

@@ -1,4 +1,4 @@
-Start UTC,Printer,USER,Real Print Time,Computed Print Time,Status,Filament Used,Costs,Notes,A
+startTime,printer,user,actualPrintTime,calculatedPrintTime,status,filamentUsed,costs,notes,A
 2026-11-04 18:0:32,ME18,3f88ca29-d950-5e2c-9f49-db4656a2b9d5,00:08:56,00:45:19,aborted,284,5.07,Line 913: G1 X62.508 Y96.498 E.01089 / Layer: 2,
 2026-11-04 17:55:5,ME18,3f88ca29-d950-5e2c-9f49-db4656a2b9d5,00:04:44,00:45:19,aborted,69,5.03,Line 492: G1 X84.119 Y98.607 E.01583 / Layer: 1,
 2026-11-04 17:53:57,ME20,3f88ca29-d950-5e2c-9f49-db4656a2b9d5,00:04:08,00:45:19,aborted,48,5.03,Line 433: G1 X84.242 Y97.92 E.09617 / Layer: 1,

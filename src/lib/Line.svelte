@@ -1,16 +1,15 @@
-/* eslint-disable */
 <script lang="ts">
   import * as d3 from "d3";
   
   type TProps = {
     data: Array<{ x: Date; y: number }>;
-    yearRange: [Date, Date] | undefined;
+    weekRange: [Date, Date] | undefined;
     width?: number;
     height?: number;
   };
   let {
     data = [],
-    yearRange = $bindable(),
+    weekRange = $bindable(),
     height = 150,
     width = 600,
   }: TProps = $props();
@@ -65,13 +64,13 @@
   }
 
   function handleBrush(event: any) {
-    // tip3: this function will be called at Brush end, and we will use it to update the yearRange
+    // tip3: this function will be called at Brush end, and we will use it to update the weekRange
     const selection = event.selection;
     if (selection) {
         const [start, end] = selection.map(xScale.invert); // Convert from pixel values to Date
-        yearRange = [start, end]
+        weekRange = [start, end]
     } else {
-        yearRange = undefined
+        weekRange = undefined
     }
   }
 
@@ -114,11 +113,11 @@
   <g class="brush" bind:this={brushElement} />
 
   <text x={width / 2} y={height - 5} text-anchor="middle">
-    Number of Movies by Year:
+    Number of Prints by Week:
   </text>
-  {#if yearRange}
+  {#if weekRange}
     <text x={width / 2} y={height - 20} text-anchor="middle">
-      {yearRange[0].getFullYear()} - {yearRange[1].getFullYear()}
+      {weekRange[0]} - {weekRange[1]}
     </text>
   {:else}
     <text x={width / 2} y={height - 20} text-anchor="middle">
@@ -126,4 +125,3 @@
     </text>
   {/if}
 </svg>
-/* eslint-enable */

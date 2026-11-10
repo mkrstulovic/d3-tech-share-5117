@@ -1,17 +1,17 @@
 <script lang="ts">
-  import type { Quota, PrintHistory } from "../types";
+  import type { Quota, PrintHistory } from "../types.d";
   import * as d3 from "d3";
 
   type TProps = {
-    movies: TMovie[];
-    x: keyof TMovie; // for simplicity, we assume x
-    y: keyof TMovie;
-    size?: keyof TMovie;
+    prints: PrintHistory[];
+    x: keyof PrintHistory; // for simplicity, we assume x
+    y: keyof PrintHistory;
+    size?: keyof PrintHistory;
     width?: number;
     height?: number;
   };
-  const { movies, x, y, size, height = 500, width = 600 }: TProps = $props();
-  let selectedMovie: TMovie | undefined = $state();
+  const { prints, x, y, size, height = 500, width = 600 }: TProps = $props();
+  let selectedPrint: PrintHistory | undefined = $state();
 
   const margin = {
     top: 15,
@@ -28,11 +28,11 @@
   const sizeRange = [3, 15];
 
   function getScale(
-    attrName: keyof TMovie,
+    attrName: keyof PrintHistory,
     axis: "x" | "y" | "color" | "size",
-    movies: TMovie[]
+    prints: PrintHistory[]
   ) {
-    if (movies.length == 0) {
+    if (prints.length == 0) {
       return null;
     }
 
@@ -45,41 +45,43 @@
       range = sizeRange;
     }
 
-    if (typeof movies[0][attrName] == "string") {
+    if (typeof prints[0][attrName] == "string") {
       return d3
         .scaleBand()
-        .domain(movies.map((d) => d[attrName] as string))
+        .domain(prints.map((d) => d[attrName] as string))
         .range(range);
-    } else if (typeof movies[0][attrName] == "number") {
+    } else if (typeof prints[0][attrName] == "number") {
       return d3
         .scaleLinear()
         .domain(
-          d3.extent(movies, (d) => d[attrName] as number) as [number, number]
+          d3.extent(prints, (d) => d[attrName] as number) as [number, number]
         )
         .range(range);
-    } else if (movies[0][attrName] instanceof Date) {
+    } else if (prints[0][attrName] instanceof Date) {
       // date
       return d3
         .scaleTime()
-        .domain(d3.extent(movies, (d) => d[attrName] as Date) as [Date, Date])
+        .domain(d3.extent(prints, (d) => d[attrName] as Date) as [Date, Date])
         .range(range);
-    } else if (typeof movies[0][attrName] == "object") {
-      // array
-      let allValues = movies
-        .map((d) => d[attrName] as string[])
-        .reduce((acc, val) => acc.concat(val), []);
-      return d3
-        .scaleBand()
-        .domain([...new Set(allValues)])
-        .range(range);
-    } else {
+    } 
+    // else if (typeof prints[0][attrName] == "object") {
+    //   // array
+    //   let allValues = prints
+    //     .map((d) => d[attrName] as string[])
+    //     .reduce((acc, val) => acc.concat(val), []);
+    //   return d3
+    //     .scaleBand()
+    //     .domain([...new Set(allValues)])
+    //     .range(range);
+    // } 
+    else {
       return null;
     }
   }
 
-  const xScale = $derived(getScale(x, "x", movies));
-  const yScale = $derived(getScale(y, "y", movies));
-  const sizeScale = $derived(size ? getScale(size, "size", movies) : null);
+  const xScale = $derived(getScale(x, "x", prints));
+  const yScale = $derived(getScale(y, "y", prints));
+  const sizeScale = $derived(size ? getScale(size, "size", prints) : null);
 
   let xAxis: any = $state(),
     yAxis: any = $state();
@@ -97,11 +99,11 @@
     d3.select(yAxis).call(d3.axisLeft(yScale as any));
   }
 
-  function handleMovieClick(movie: TMovie) {
-    if (selectedMovie == movie) {
-      selectedMovie = undefined;
+  function handlePrintClick(print: PrintHistory) {
+    if (selectedPrint == print) {
+      selectedPrint = undefined;
     } else {
-      selectedMovie = movie;
+      selectedPrint = print;
     }
   }
 
@@ -113,44 +115,44 @@
 
 <svg {width} {height}>
   <g class="points">
-    {#each movies as movie}
-      {#if x == "genres"}
-        {#each movie["genres"] as genre}
+    {#each prints as print}
+      <!-- {#if x == "genres"}
+        {#each print["genres"] as genre} -->
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <circle
+          <!-- <circle
             cx={xScale ? (xScale as d3.ScaleBand<string>)(genre) ?? usableArea.left : usableArea.left}
-            cy={yScale ? yScale(movie[y] as never) : usableArea.bottom}
-            r={sizeScale && size ? (sizeScale as any)(movie[size]) : sizeRange[0]}
-            fill={movie == selectedMovie ? "steelblue" : "transparent"}
+            cy={yScale ? yScale(print[y] as never) : usableArea.bottom}
+            r={sizeScale && size ? (sizeScale as any)(print[size]) : sizeRange[0]}
+            fill={print == selectedPrint ? "steelblue" : "transparent"}
             stroke="steelblue"
             stroke-width="2"
-            opacity={movie == selectedMovie ? 1 : 0.5}
-            onclick={() => handleMovieClick(movie)}
+            opacity={print == selectedPrint ? 1 : 0.5}
+            onclick={() => handlePrintClick(print)}
           />
         {/each}
-      {:else}
+      {:else} -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <circle
-          cx={xScale ? xScale(movie[x] as never) : usableArea.left}
-          cy={yScale ? yScale(movie[y] as never) : usableArea.bottom}
-          r={sizeScale && size ? (sizeScale as any)(movie[size]) : sizeRange[0]}
-          fill={movie == selectedMovie ? "steelblue" : "transparent"}
+          cx={xScale ? xScale(print[x] as never) : usableArea.left}
+          cy={yScale ? yScale(print[y] as never) : usableArea.bottom}
+          r={sizeScale && size ? (sizeScale as any)(print[size]) : sizeRange[0]}
+          fill={print == selectedPrint ? "steelblue" : "transparent"}
           stroke="steelblue"
           stroke-width="2"
-          opacity={movie == selectedMovie ? 1 : 0.5}
-          onclick={() => handleMovieClick(movie)}
+          opacity={print == selectedPrint ? 1 : 0.5}
+          onclick={() => handlePrintClick(print)}
         />
-      {/if}
+      <!-- {/if} -->
     {/each}
   </g>
   <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
   <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
 </svg>
 <div class="selectedInfo">
-  {selectedMovie
-    ? JSON.stringify(selectedMovie, null, 2)
+  {selectedPrint
+    ? JSON.stringify(selectedPrint, null, 2)
     : "Click on a point to see details"}
 </div>
 

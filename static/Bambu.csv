@@ -1,4 +1,4 @@
-Start UTC,Printer,USER,Real Print Time,Computed Print Time,Status,Filament Used,Costs,Notes,A
+startTime,printer,user,actualPrintTime,calculatedPrintTime,status,filamentUsed,costs,notes,A
 2026-11-03 23:19:46,ME40,627f55da-531d-5379-a346-53d6be425700,04:55:37,04:47:29,printed,0,6.48,,
 2026-11-03 22:27:31,ME41,f0de0e66-e6b6-5bed-9a9f-73459b6adbe7,00:00:05,01:15:54,printed,0,5.00,,
 2026-11-03 22:26:43,ME39,f0de0e66-e6b6-5bed-9a9f-73459b6adbe7,00:00:08,01:15:54,printed,0,5.00,,
