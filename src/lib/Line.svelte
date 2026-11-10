@@ -7,7 +7,7 @@
     data: WeeklyPrintCount[];
   };
   // We bind the data from our props to this visualization so we update based on the data.
-  let { data = $bindable() }: TProps = $props();
+  let { data }: TProps = $props();
   // We need to change the svgElement so we can load effects to edit it.
   let svgElement: SVGSVGElement | undefined = $state();
 
