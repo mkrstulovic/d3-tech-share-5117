@@ -27,8 +27,8 @@
       .domain([0, d3.max(data, (week) => week.printCount) || 1])
       .range([height - margin.bottom, margin.top]);
 
-    svg.select<SVGGElement>('.x-axis').call(d3.axisBottom(xScale).ticks(6));
-    svg.select<SVGGElement>('.y-axis').call(d3.axisLeft(yScale).ticks(4, 'd'));
+    svg.select<SVGGElement>('.x-axis').call(d3.axisBottom(xScale).ticks(12));
+    svg.select<SVGGElement>('.y-axis').call(d3.axisLeft(yScale).ticks(4));
 
     const line = d3
       .line<WeeklyPrintCount>()

@@ -35,8 +35,8 @@
       .range([height - margin.bottom, margin.top]);
 
     // We select the target SVG and add the axes as props.
-    svg.select<SVGGElement>('.x-axis').call(d3.axisBottom(xScale).ticks(6));
-    svg.select<SVGGElement>('.y-axis').call(d3.axisLeft(yScale).ticks(4, 'd'));
+    svg.select<SVGGElement>('.x-axis').call(d3.axisBottom(xScale).ticks(12));
+    svg.select<SVGGElement>('.y-axis').call(d3.axisLeft(yScale).ticks(4));
 
     // We draw our line using our data type, setting the x and y based on fields in the data.
     const line = d3
