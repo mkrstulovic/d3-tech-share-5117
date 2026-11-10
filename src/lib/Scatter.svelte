@@ -24,7 +24,7 @@
     if (!svgElement) return;
     const svg = d3.select(svgElement);
 
-    // Linear scale to estimated print time, a number. 
+    // Linear scale to estimated print time, a number.
     const xScale = d3
       .scaleLinear()
       .domain([0, d3.max(prints, (print) => print.calculatedPrintTime) || 1])
@@ -35,7 +35,7 @@
       .domain([0, d3.max(prints, (print) => print.actualPrintTime) || 1])
       .range([height - margin.bottom, margin.top]);
 
-    // This actually adds the axes to the scatter. It also defines what ticks to show. 
+    // This actually adds the axes to the scatter. It also defines what ticks to show.
     svg.select<SVGGElement>('.x-axis').call(d3.axisBottom(xScale).ticks(6));
     svg.select<SVGGElement>('.y-axis').call(d3.axisLeft(yScale).ticks(6));
 
@@ -63,7 +63,7 @@
       .attr('r', 4)
       .attr('fill', (item) => item.color)
       .attr('opacity', 0.5);
-      
+
     legend
       .selectAll('text')
       .data(legendItems)
@@ -76,7 +76,7 @@
 </script>
 
 <!-- We define an SVG container with preset groups for the scatter plot, making sure to bind it to svgElement so d3 can manipulate it -->
-<svg bind:this={svgElement} {width} {height} aria-label="Estimated versus actual print duration">
+<svg bind:this={svgElement} {width} {height}>
   <g class="points" />
   <g class="x-axis" transform="translate(0, {height - margin.bottom})" />
   <g class="y-axis" transform="translate({margin.left}, 0)" />

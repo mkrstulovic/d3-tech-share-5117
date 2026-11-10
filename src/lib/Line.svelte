@@ -46,13 +46,12 @@
 
     // WE add the line and specify the data to use with the following:
     svg.select('.series').datum(data).attr('d', line);
-
   });
 </script>
 
 <!-- This is how to define the HTML element to display. We need to bind this to our svgElement reference from earlier to tell d3 to populate this. -->
 <!-- Path is how SVGs draw lines. We add general groups to guide d3 in where to make changes, such as groups for the axes. -->
-<svg bind:this={svgElement} {width} {height} aria-label="Print jobs started each week">
+<svg bind:this={svgElement} {width} {height}>
   <path class="series" fill="none" stroke="#E46DAC" stroke-width="2" />
   <g class="x-axis" transform="translate(0, {height - margin.bottom})" />
   <g class="y-axis" transform="translate({margin.left}, 0)" />
