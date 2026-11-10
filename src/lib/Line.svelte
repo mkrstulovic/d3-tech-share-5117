@@ -20,13 +20,11 @@
     const xScale = d3
       .scaleTime()
       .domain([data[0].weekStart, d3.timeWeek.offset(data[data.length - 1].weekStart, 1)])
-      .range([margin.left, width - margin.right])
-      .nice();
+      .range([margin.left, width - margin.right]);
     const yScale = d3
       .scaleLinear()
       .domain([0, d3.max(data, (week) => week.printCount) || 1])
-      .range([height - margin.bottom, margin.top])
-      .nice();
+      .range([height - margin.bottom, margin.top]);
 
     svg.select<SVGGElement>('.x-axis').call(d3.axisBottom(xScale).ticks(6));
     svg.select<SVGGElement>('.y-axis').call(d3.axisLeft(yScale).ticks(4, 'd'));

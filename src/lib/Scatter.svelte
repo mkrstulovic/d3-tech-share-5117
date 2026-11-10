@@ -25,13 +25,11 @@
     const xScale = d3
       .scaleLinear()
       .domain([0, d3.max(prints, (print) => print.calculatedPrintTime) || 1])
-      .range([margin.left, width - margin.right])
-      .nice();
+      .range([margin.left, width - margin.right]);
     const yScale = d3
       .scaleLinear()
       .domain([0, d3.max(prints, (print) => print.actualPrintTime) || 1])
-      .range([height - margin.bottom, margin.top])
-      .nice();
+      .range([height - margin.bottom, margin.top]);
 
     svg.select<SVGGElement>('.x-axis').call(d3.axisBottom(xScale).ticks(6));
     svg.select<SVGGElement>('.y-axis').call(d3.axisLeft(yScale).ticks(6));
