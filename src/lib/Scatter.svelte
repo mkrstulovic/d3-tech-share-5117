@@ -5,8 +5,9 @@
   type TProps = {
     prints: PrintHistory[];
     visiblePrints: PrintHistory[];
+    visInteractivity: boolean;
   };
-  const { prints, visiblePrints }: TProps = $props();
+  const { prints, visiblePrints, visInteractivity }: TProps = $props();
   let svgElement: SVGSVGElement | undefined = $state();
 
   // We keep track of the hovered print and where to show its details.
@@ -58,6 +59,7 @@
 
       // We show the details on hover and hide them when the pointer leaves.
       .on('pointerenter', (event, print) => {
+        if (!visInteractivity) return;
         const [x, y] = d3.pointer(event, svgElement);
         tooltip = { print, x: x + 10, y: y + 10 };
       })
@@ -103,7 +105,7 @@
   </svg>
 
   <!-- We display the loaded values for the point we are hovering over. -->
-  {#if tooltip && visiblePrints.includes(tooltip.print)}
+  {#if visInteractivity && tooltip && visiblePrints.includes(tooltip.print)}
     <div class="tooltip" style="left: {tooltip.x}px; top: {tooltip.y}px;">
       <div><strong>Started:</strong> {tooltip.print.startTime}</div>
       <div><strong>Printer:</strong> {tooltip.print.printer}</div>

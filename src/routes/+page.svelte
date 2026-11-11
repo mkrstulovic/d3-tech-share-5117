@@ -10,7 +10,8 @@
   let weeklyCounts: WeeklyPrintCount[] = $state([]);
   let dateRange: [Date, Date] | undefined = $state();
 
-  let useBrush = false;
+  // We enable the date picker and tooltips with this setting.
+  let visInteractivity = $state(false);
 
   // This is an important step for brushing.
   // We define a dervied state dependent on a date range (our filter).
@@ -39,7 +40,7 @@
   }
 
   // Everything needed to support DatePickers (which themselves are another component).
-  import { DatePicker } from "@svelte-plugins/datepicker";
+  import { DatePicker } from '@svelte-plugins/datepicker';
   import { format } from 'date-fns';
 
   let pickerStart = $state<Date | number | undefined>();
@@ -57,7 +58,7 @@
     pickerStart = dateRange[0];
     pickerEnd = dateRange[1];
   });
-  
+
   $effect(() => {
     const start = toDate(pickerStart);
     const end = toDate(pickerEnd);
@@ -66,20 +67,19 @@
     dateRange = start <= end ? [start, end] : [end, start];
   });
 
-  
-  const dataExtent = $derived(
-    d3.extent(prints, (p) => p.startTime) as [Date, Date]
-  );
+  const dataExtent = $derived(d3.extent(prints, (p) => p.startTime) as [Date, Date]);
 
   function clearRange() {
     dateRange = dataExtent;
   }
-  
 
   onMount(async () => {
     await loadCsv();
     const [earliest, latest] = d3.extent(prints, (p) => p.startTime);
-    console.log('extent', d3.extent(prints, (p) => p.startTime));
+    console.log(
+      'extent',
+      d3.extent(prints, (p) => p.startTime)
+    );
     if (earliest && latest) dateRange = [earliest, latest];
   });
 </script>
@@ -96,35 +96,34 @@
   {#if prints.length > 0 && weeklyCounts.length > 0}
     <h2>Scatter plot</h2>
     <p>Showing {visiblePrints.length} of {prints.length} print jobs.</p>
-    <Scatter {prints} {visiblePrints} />
+    <Scatter {prints} {visiblePrints} {visInteractivity} />
 
     <h2>Line graph</h2>
-    <p>Drag across the line graph to filter the scatter plot.</p>
-    {#if !useBrush}
-    <div class="picker">
-      <DatePicker
-        bind:isOpen={isPickerOpen}
-        bind:startDate={pickerStart}
-        bind:endDate={pickerEnd}
-        isRange
-        alignRight
-      >
-        <button type="button" onclick={() => (isPickerOpen = !isPickerOpen)}>
-          {#if dateRange}
-            {format(dateRange[0], 'MMM d, yyyy')} – {format(dateRange[1], 'MMM d, yyyy')}
-          {:else}
-            Select date range
-          {/if}
-        </button>
-      </DatePicker>
+    {#if visInteractivity}
+      <p>Use the date picker to filter the scatter plot.</p>
+      <div class="picker">
+        <DatePicker
+          bind:isOpen={isPickerOpen}
+          bind:startDate={pickerStart}
+          bind:endDate={pickerEnd}
+          isRange
+          alignRight
+        >
+          <button type="button" onclick={() => (isPickerOpen = !isPickerOpen)}>
+            {#if dateRange}
+              {format(dateRange[0], 'MMM d, yyyy')} – {format(dateRange[1], 'MMM d, yyyy')}
+            {:else}
+              Select date range
+            {/if}
+          </button>
+        </DatePicker>
 
-      {#if dateRange}
-        <button type="button" onclick={clearRange}>Clear</button>
-      {/if}
-    </div>
+        {#if dateRange}
+          <button type="button" onclick={clearRange}>Clear</button>
+        {/if}
+      </div>
     {/if}
     <Line data={weeklyCounts} bind:dateRange />
-    
   {/if}
 </div>
 
