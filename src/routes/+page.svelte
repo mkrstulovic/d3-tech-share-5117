@@ -10,8 +10,8 @@
   let weeklyCounts: WeeklyPrintCount[] = $state([]);
   let dateRange: [Date, Date] | undefined = $state();
 
-  // We enable the date picker and tooltips with this setting.
-  let visInteractivity = $state(false);
+  // We use the brush and tooltips when enabled, or the date picker when disabled.
+  let visInteractivity = $state(true);
 
   // This is an important step for brushing.
   // We define a dervied state dependent on a date range (our filter).
@@ -60,6 +60,8 @@
   });
 
   $effect(() => {
+    // The hidden date picker should not overwrite the brush selection.
+    if (visInteractivity) return;
     const start = toDate(pickerStart);
     const end = toDate(pickerEnd);
     if (!start || !end) return;
@@ -100,6 +102,8 @@
 
     <h2>Line graph</h2>
     {#if visInteractivity}
+      <p>Drag across the line graph to filter the scatter plot.</p>
+    {:else}
       <p>Use the date picker to filter the scatter plot.</p>
       <div class="picker">
         <DatePicker
@@ -123,7 +127,7 @@
         {/if}
       </div>
     {/if}
-    <Line data={weeklyCounts} bind:dateRange />
+    <Line data={weeklyCounts} bind:dateRange {visInteractivity} />
   {/if}
 </div>
 

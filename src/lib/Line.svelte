@@ -6,9 +6,10 @@
   type TProps = {
     data: WeeklyPrintCount[];
     dateRange: [Date, Date] | undefined;
+    visInteractivity: boolean;
   };
   // We bind the data from our props to this visualization so we update based on the data.
-  let { data, dateRange = $bindable() }: TProps = $props();
+  let { data, dateRange = $bindable(), visInteractivity }: TProps = $props();
   // We need to change the svgElement so we can load effects to edit it.
   let svgElement: SVGSVGElement | undefined = $state();
 
@@ -75,6 +76,27 @@
       .attr('y', margin.top - 6)
       .attr('font-size', 12)
       .text((marker) => marker.label);
+
+    // This is the key difference!
+    // We need to set a dimension for the brush, the boundaries, and and effect when the brush ends.
+    // In this case we get the selection on the range (the physical SVG) and convert it to the domain (actual dates)
+    // If there is no selection, we do not define a filter.
+    if (visInteractivity) {
+      const brush = d3
+        .brushX()
+        .extent([
+          [margin.left, margin.top],
+          [width - margin.right, height - margin.bottom]
+        ])
+        .on('brush end', (event) => {
+          const selection = event.selection as [number, number] | null;
+          dateRange = selection
+            ? [xScale.invert(selection[0]), xScale.invert(selection[1])]
+            : undefined;
+        });
+
+      svg.select<SVGGElement>('.brush').call(brush);
+    }
   });
 </script>
 
@@ -85,6 +107,9 @@
   <g class="x-axis" transform="translate(0, {height - margin.bottom})" />
   <g class="y-axis" transform="translate({margin.left}, 0)" />
   <g class="semester-markers" pointer-events="none" />
+  {#if visInteractivity}
+    <g class="brush" />
+  {/if}
   <!-- We add text labels for axes, specifying approximately where we want them along the SVG height/width. -->
   <text x={width / 2} y={height - 5} text-anchor="middle">Week starting Sunday</text>
   <text transform="rotate(-90)" x={-height / 2} y={16} text-anchor="middle">Print jobs</text>
