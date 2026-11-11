@@ -5,9 +5,10 @@
   // The data is given as our print counts. We define the type of the props here.
   type TProps = {
     data: WeeklyPrintCount[];
+    dateRange: [Date, Date] | undefined;
   };
   // We bind the data from our props to this visualization so we update based on the data.
-  let { data }: TProps = $props();
+  let { data, dateRange = $bindable() }: TProps = $props();
   // We need to change the svgElement so we can load effects to edit it.
   let svgElement: SVGSVGElement | undefined = $state();
 
