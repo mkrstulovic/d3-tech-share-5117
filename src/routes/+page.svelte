@@ -3,7 +3,6 @@
   import { onMount } from 'svelte';
   import Scatter from '#lib/Scatter.svelte';
   import Line from '#lib/Line.svelte';
-  import LineBrush from '#lib/LineBrush.svelte';
   import type { PrintHistory, WeeklyPrintCount } from '../types.d';
 
   // We set key state values here so we can render dynamically and keep track.
@@ -19,7 +18,7 @@
   const visiblePrints = $derived.by(() => {
     if (!dateRange) return prints;
     const [start, end] = dateRange;
-    return prints.filter((print) => print.startTime >= start && print.startTime < end);
+    return prints.filter((print) => print.startTime >= start && print.startTime <= end);
   });
 
   // We load the CSV data from our file and define data types for each of the columns. We load this when the page mounts.
@@ -37,8 +36,49 @@
     }));
   }
 
-  onMount(() => {
-    loadCsv();
+  // Everything needed to support DatePickers (which themselves are another component).
+  import { DatePicker } from "@svelte-plugins/datepicker";
+  import { format } from 'date-fns';
+
+  let pickerStart = $state<Date | number | undefined>();
+  let pickerEnd = $state<Date | number | undefined>();
+  let isPickerOpen = $state(false);
+
+  function toDate(value: Date | number | string | null | undefined): Date | undefined {
+    if (value == null) return undefined;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) || d.getTime() <= 0 ? undefined : d;
+  }
+
+  $effect(() => {
+    if (!dateRange) return;
+    pickerStart = dateRange[0];
+    pickerEnd = dateRange[1];
+  });
+  
+  $effect(() => {
+    const start = toDate(pickerStart);
+    const end = toDate(pickerEnd);
+    if (!start || !end) return;
+    if (dateRange && +dateRange[0] === +start && +dateRange[1] === +end) return;
+    dateRange = start <= end ? [start, end] : [end, start];
+  });
+
+  
+  const dataExtent = $derived(
+    d3.extent(prints, (p) => p.startTime) as [Date, Date]
+  );
+
+  function clearRange() {
+    dateRange = dataExtent;
+  }
+  
+
+  onMount(async () => {
+    await loadCsv();
+    const [earliest, latest] = d3.extent(prints, (p) => p.startTime);
+    console.log('extent', d3.extent(prints, (p) => p.startTime));
+    if (earliest && latest) dateRange = [earliest, latest];
   });
 </script>
 
@@ -58,11 +98,31 @@
 
     <h2>Line graph</h2>
     <p>Drag across the line graph to filter the scatter plot.</p>
-    {#if useBrush}
-      <LineBrush data={weeklyCounts} bind:dateRange />
-    {:else}
-      <Line data={weeklyCounts} />
+    {#if !useBrush}
+    <div class="picker">
+      <DatePicker
+        bind:isOpen={isPickerOpen}
+        bind:startDate={pickerStart}
+        bind:endDate={pickerEnd}
+        isRange
+        alignRight
+      >
+        <button type="button" onclick={() => (isPickerOpen = !isPickerOpen)}>
+          {#if dateRange}
+            {format(dateRange[0], 'MMM d, yyyy')} – {format(dateRange[1], 'MMM d, yyyy')}
+          {:else}
+            Select date range
+          {/if}
+        </button>
+      </DatePicker>
+
+      {#if dateRange}
+        <button type="button" onclick={clearRange}>Clear</button>
+      {/if}
+    </div>
     {/if}
+    <Line data={weeklyCounts} bind:dateRange />
+    
   {/if}
 </div>
 
@@ -72,5 +132,11 @@
     margin: 0 auto;
     padding: 16px;
     font-family: system-ui, sans-serif;
+  }
+  .picker {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
   }
 </style>
