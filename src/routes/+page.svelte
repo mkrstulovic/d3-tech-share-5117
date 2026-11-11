@@ -28,7 +28,9 @@
       startTime: new Date(row.startTime),
       actualPrintTime: Number(row.actualPrintTime),
       calculatedPrintTime: Number(row.calculatedPrintTime),
-      status: row.status as PrintHistory['status']
+      status: row.status as PrintHistory['status'],
+      printer: row.printer,
+      costs: Number(row.costs)
     }));
 
     weeklyCounts = await d3.csv('./weekly_prints.csv', (row) => ({

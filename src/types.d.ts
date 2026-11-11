@@ -3,6 +3,8 @@ export type PrintHistory = {
   actualPrintTime: number;
   calculatedPrintTime: number;
   status: 'printed' | 'aborted';
+  printer: string;
+  costs: number;
 };
 
 export type WeeklyPrintCount = {
