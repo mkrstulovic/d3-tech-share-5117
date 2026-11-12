@@ -4,7 +4,7 @@ This demo shows 3D printing jobs from University of Minnesota students and facul
 
 ## Run locally
 
-With Node.js and npm installed, run these commands at the project root.
+With Node.js and npm installed, run these commands at the project root:
 
 ```sh
 npm i
@@ -15,7 +15,7 @@ Open [`http://localhost:5173/`](http://localhost:5173/).
 
 ## Interactivity
 
-Set `visInteractivity` in `src/routes/+page.svelte`.
+Set `visInteractivity` in `src/routes/+page.svelte`:
 
 - `false` (default) shows a date picker to filter the scatter plot.
 - `true` lets you drag across the line chart to filter the scatter plot and hover over a point to see job details.
