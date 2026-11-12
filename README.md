@@ -1,56 +1,33 @@
-# sv
+# D3 Tech Demo
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This demo shows 3D printing jobs from University of Minnesota students and faculty using Prusa and Bambu printers. The scatter plot compares estimated and actual duration in hours, and the line graph shows jobs started each week.
 
-## Creating a project
+## Run locally
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
+With Node.js and npm installed, run these commands at the project root.
 
 ```sh
-# recreate this project
-npx sv@1.2.0 create --template minimal --types ts --add eslint sveltekit-adapter="adapter:auto" --install npm d3-tech-share-5117
-```
-
-## Adding features
-
-Add features to your project with `sv add`:
-
-```sh
-npx sv add
-```
-
-For example, to add Tailwind CSS:
-
-```sh
-npx sv add tailwindcss
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
+npm i
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+Open [`http://localhost:5173/`](http://localhost:5173/).
 
-To create a production version of your app:
+## Interactivity
 
-```sh
-npm run build
-```
+Set `visInteractivity` in `src/routes/+page.svelte`.
 
-You can preview the production build with `npm run preview`.
+- `false` (default) shows a date picker to filter the scatter plot.
+- `true` lets you drag across the line chart to filter the scatter plot and hover over a point to see job details.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Learn more about D3
+
+- Official setup guide with a first chart: [Getting started](https://d3js.org/getting-started)
+- Practical guides to selections, scales, and interactions: [D3 in Depth](https://www.d3indepth.com/)
+- Browse working charts and their code: [Observable D3 gallery](https://observablehq.com/@d3/gallery)
+- Find D3 functions by name or module: [API index](https://d3js.org/api)
+- Map data to positions and draw labeled ticks: [Scales](https://d3js.org/d3-scale) and [axes](https://d3js.org/d3-axis)
+- Bind data to elements and add, update, or remove marks: [Data joins](https://d3js.org/d3-selection/joining)
+- Turn a series of values into a path: [Line generator](https://d3js.org/d3-shape/line)
+- Respond to hover and other pointer events: [Event handling](https://d3js.org/d3-selection/events)
+- Let users select a range by dragging: [Brushing](https://d3js.org/d3-brush)
