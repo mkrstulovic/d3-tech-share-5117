@@ -31,3 +31,7 @@ Set `visInteractivity` in `src/routes/+page.svelte`:
 - Turn a series of values into a path: [Line generator](https://d3js.org/d3-shape/line)
 - Respond to hover and other pointer events: [Event handling](https://d3js.org/d3-selection/events)
 - Let users select a range by dragging: [Brushing](https://d3js.org/d3-brush)
+
+## CSCI 5609 project gallery
+
+- Examples of the possibilities of D3: [Gallery](https://umn-csci5609.github.io/my-vis-5609/#Gallery)
